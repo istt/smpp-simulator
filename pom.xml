@@ -287,6 +287,13 @@
             <artifactId>spring-security-messaging</artifactId>
         </dependency>
         <!-- jhipster-needle-maven-add-dependency -->
+        
+        <!-- https://mvnrepository.com/artifact/org.mobicents.smsc/smsc-common-library -->
+		<dependency>
+		    <groupId>org.mobicents.smsc</groupId>
+		    <artifactId>smsc-common-library</artifactId>
+		    <version>7.4.179</version>
+		</dependency>
     </dependencies>
 
     <build>

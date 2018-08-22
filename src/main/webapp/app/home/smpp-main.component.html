@@ -1,0 +1,546 @@
+<div class="card">
+  <div class="card-body table-responsive">
+    <table class="table">
+      <thead><tr>
+        <th>TimeStamp</th>
+        <th>Message</th>
+        <th>UserData</th>
+      </tr></thead>
+      <tbody>
+        <tr *ngFor="let item of listMessage" (click)="showDialogSmmMessage(item)">
+          <td>{{item.timeStamp}}</td>
+          <td>{{item.msg}}</td>
+          <td>{{item.info}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer">
+    {{messageState}}
+  </div>
+</div>
+
+    <div class="row my-3">
+      <div class="col-lg-12">
+        <button type="button" class="btn btn-info" (click)="showDialogSmppConfigure()">Configure</button>
+        <button type="button" class="btn btn-primary" (click)="clickBtStartASession()" [disabled]="isStartSession">
+          Start a session
+        </button>
+        <button type="button" class="btn btn-primary" (click)="clickBtStopSession()" [disabled]="!isStartSession">
+          Stop a session
+        </button>
+
+        <button type="button" class="btn btn-primary hidden">Open event window</button>
+      </div>
+    </div>
+    <!-- /.row -->
+    <div class="row my-3">
+      <div class="col-lg-12">
+        <button type="button" class="btn btn-primary" (click)="clickBtRefreshState()">Refresh state</button>
+
+      </div>
+
+    </div>
+    <!-- /.row -->
+    <div class="row my-3">
+      <div class="col-lg-12">
+        <button type="button" class="btn btn-primary" (click)="clickBtSendBadPacket()">Send Bad packet</button>
+
+        <button type="button" class="btn btn-primary" (click)="clickBtSubmitMessage()">Submit a message</button>
+      </div>
+    </div>
+    <!-- /.row -->
+    <div class="row my-3">
+      <div class="col-lg-12">
+        <div class="radio">
+          <label>
+            <input type="radio" [(ngModel)]="isRandomBulkMessages">
+            Random bulk messages
+          </label>
+        </div>
+      </div>
+
+    </div>
+    <!-- /.row -->
+    <div class="row my-3" id="divPortPacpParsing">
+      <div class="col-lg-4">
+        <div class="radio">
+          <label>
+            <input type="radio" [(ngModel)]="isRandomBulkMessages"
+                   data-ng-value="false">
+            Bulk messages from pcap file
+          </label>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group input-group">
+          <span class="input-group-addon">TCP Port for pcap parsing</span>
+          <input type="text" [(ngModel)]="portForPcapParsing" ng-disabled="isRandomBulkMessages"
+                 class="form-control  required integer">
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <button type="button" class="btn btn-primary" id="buttonChosePacpFile"
+                ng-disabled="isRandomBulkMessages"
+                ngf-select [(ngModel)]="file" ngf-multiple="false"
+                ngf-max-size="10MB">
+          <i class="fa fa-file" aria-hidden="true"></i> Chose pcap file
+        </button>
+      </div>
+    </div>
+    <!-- /.row -->
+    <div class="row">
+      <div class="col-lg-12">
+        <button type="button" class="btn btn-primary"
+                (click)="clickBtStartBulkSending()">
+          Start bulk sending
+        </button>
+        <button type="button" class="btn btn-primary"
+                (click)="clickBtStopBulkSending()">
+          Stop bulk sending
+        </button>
+      </div>
+    </div>
+    <!-- /.row -->
+  </div>
+</div>
+
+<ng-template #dialogSmppMessage let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Event detail</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-12 form-horizontal">
+        <div class=" form-group">
+          <label class="col-sm-2 control-label">TimeStamp</label>
+          <div class="col-sm-10">
+            <input class="form-control" [(ngModel)]="smppMessage.timeStamp" disabled>
+          </div>
+        </div>
+        <!-- /.form-group-->
+        <div class=" form-group">
+          <label class="col-sm-2 control-label">Message</label>
+          <div class="col-sm-10">
+            <input class="form-control" [(ngModel)]="smppMessage.msg" disabled>
+          </div>
+        </div>
+        <!-- /.form-group-->
+      </div>
+      <!-- ./col-lg-12-->
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label>UserData</label>
+          <textarea class="form-control" rows="3" type="text" [(ngModel)]="smppMessage.info" disabled></textarea>
+        </div>
+        <!-- /.form-group-->
+      </div>
+      <!-- ./col-lg-12-->
+    </div>
+    <!-- /.row -->
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="c()">Close</button>
+  </div>
+</ng-template>
+
+<ng-template #dialogSmppConfigure let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">SMPP Configure</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body"><ngb-tabset>
+
+    <ngb-tab>
+      <ng-template ngbTabTitle>Configure</ng-template>
+      <ng-template ngbTabContent>
+        <div class="row my-3">
+          <div class="col-lg-6">
+            <form role="form">
+              <div class="form-group">
+                <label>SystemId</label>
+                <input class="form-control required" name="systemId" id="smppCof_systemId" [(ngModel)]="smppCof.systemId">
+              </div>
+              <div class="form-group ">
+                <label>Password</label>
+                <input class="form-control required" name="password" id="smppCof_password" [(ngModel)]="smppCof.password">
+              </div>
+              <div class="form-group">
+                <label>SMSC host</label>
+                <input class="form-control required" name="host" id="smppCof_host" [(ngModel)]="smppCof.host">
+              </div>
+              <div class="form-group">
+                <label>SMSC port (for client mode), local port (for server mode)</label>
+                <input class="form-control required integer" name="port" id="smppCof_port" [(ngModel)]="smppCof.port">
+              </div>
+              <div class="form-group">
+                <label>SMPP bind type</label>
+                <select class="form-control" name="bindType" id="smppCof_bindType" [(ngModel)]="smppCof.bindType">
+                  <option value="TRANSCEIVER">TRANSCEIVER</option>
+                  <option value="TRANSMITTER">TRANSMITTER</option>
+                  <option value="RECEIVER">RECEIVER</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Smpp session type</label>
+                <select class="form-control" name="smppSessionType" id="smppCof_smppSessionType" [(ngModel)]="smppCof.smppSessionType">
+                  <option value="SERVER">SERVER</option>
+                  <option value="CLIENT">CLIENT</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="col-lg-6">
+            <form role="form">
+              <div class="form-group">
+                <label>Esme "address_range" field</label>
+                <input class="form-control required" name="addressRange" id="smppCof_addressRange" [(ngModel)]="smppCof.addressRange">
+              </div>
+              <div class="form-group">
+                <label>SMPP window size</label>
+                <input class="form-control required integer" name="windowSize" id="smppCof_windowSize" [(ngModel)]="smppCof.windowSize">
+                <p class="help-block">The maximum number of requests permitted to be outstanding
+                  (unacknowledged) at a given time</p>
+              </div>
+              <div class="form-group">
+                <label>ConnectTimeout (milliseconds)</label>
+                <input class="form-control required integer" name="connectTimeout" id="smppCof_connectTimeout" [(ngModel)]="smppCof.connectTimeout">
+              </div>
+              <div class="form-group">
+                <label>RequestExpiryTimeout (milliseconds)</label>
+                <input class="form-control required integer" name="requestExpiryTimeout" id="smppCof_requestExpiryTimeout" [(ngModel)]="smppCof.requestExpiryTimeout">
+              </div>
+              <div class="form-group">
+                <label>WindowMonitorInterval (milliseconds)</label>
+                <input class="form-control required integer" name="windowMonitorInterval" id="smppCof_windowMonitorInterval" [(ngModel)]="smppCof.windowMonitorInterval">
+              </div>
+            </form>
+          </div>
+        </div>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab>
+      <ng-template ngbTabTitle>General</ng-template>
+      <ng-template ngbTabContent>
+        <div class="row my-3">
+          <div class="col-lg-12">
+            <div class="form-group">
+              <label>Message text</label>
+              <textarea class="form-control" rows="3" type="text" name="messageText" id="smppCof_messageText" [(ngModel)]="smppCof.messageText"></textarea>
+            </div>
+            <!-- /.form-group-->
+          </div>
+          <!-- ./col-lg-12-->
+          <div class="col-lg-12 form-horizontal">
+            <div class="form-group">
+              <label class="col-sm-5 control-label">Data coding scheme (DCS)</label>
+              <div class="col-sm-7">
+                <select class="form-control" name="encodingType" id="smppCof_encodingType" [(ngModel)]="smppCof.encodingType">
+                  <option value="GSM7_DCS_0">GSM7_DCS_0</option>
+                  <option value="GSM8_DCS_4">GSM8_DCS_4</option>
+                  <option value="UCS2_DCS_8">UCS2_DCS_8</option>
+                </select>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Message class</label>
+              <div class="col-sm-7">
+                <label class="radio">
+                  <input type="radio" value="0" name="messageClass" id="smppCof_messageClass" [(ngModel)]="smppCof.messageClass">No
+                </label>
+                <label class="radio">
+                  <input type="radio" value="1" name="messageClass" id="smppCof_messageClass" [(ngModel)]="smppCof.messageClass">Cl 0 Display
+                </label>
+                <label class="radio">
+                  <input type="radio" value="2" name="messageClass" id="smppCof_messageClass" [(ngModel)]="smppCof.messageClass">Cl 1 Equipment
+                </label>
+                <label class="radio">
+                  <input type="radio" value="3" name="messageClass" id="smppCof_messageClass" [(ngModel)]="smppCof.messageClass">Cl 2 SIM
+                </label>
+                <label class="radio">
+                  <input type="radio" value="4" name="messageClass" id="smppCof_messageClass" [(ngModel)]="smppCof.messageClass">Cl 3 External Unit 1
+                </label>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Encoding type at SMPP part for (GSM7/UCS2)</label>
+              <div class="col-sm-7">
+                <label class="radio">
+                  <input type="radio" value="0" name="smppEncoding" id="smppCof_smppEncoding" [(ngModel)]="smppCof.smppEncoding">Utf8
+                </label>
+                <label class="radio">
+                  <input type="radio" value="1" name="smppEncoding" id="smppCof_smppEncoding" [(ngModel)]="smppCof.smppEncoding">Unicode
+                </label>
+                <label class="radio">
+                  <input type="radio" value="2" name="smppEncoding" id="smppCof_smppEncoding" [(ngModel)]="smppCof.smppEncoding">Gsm7
+                </label>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Message splitting type</label>
+              <div class="col-sm-7">
+                <select class="form-control" name="splittingType" id="smppCof_splittingType" [(ngModel)]="smppCof.splittingType">
+                  <option value="DoNotSplit">DoNotSplit</option>
+                  <option value="SplitWithParameters_DefaultSegmentLength">
+                    SplitWithParameters_DefaultSegmentLength
+                  </option>
+                  <option value="SplitWithUdh_DefaultSegmentLength">SplitWithUdh_DefaultSegmentLength</option>
+                  <option value="SplitWithParameters_SpecifiedSegmentLength">
+                    SplitWithParameters_SpecifiedSegmentLength
+                  </option>
+                  <option value="SplitWithUdh_SpecifiedSegmentLength">SplitWithUdh_SpecifiedSegmentLength
+                  </option>
+                </select>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Specified segment length</label>
+              <div class="col-sm-7">
+                <input class="form-control required integer"
+                       min-value="0"
+                       max-value="255"
+                       name="specifiedSegmentLength" id="smppCof_specifiedSegmentLength" [(ngModel)]="smppCof.specifiedSegmentLength">
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Source address: Type of number</label>
+              <div class="col-sm-7">
+                <select class="form-control"
+                        ng-options="item as item for item in listTON"
+                        name="sourceTON" id="smppCof_sourceTON" [(ngModel)]="smppCof.sourceTON">
+                </select>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Source address: Numbering plan indicator</label>
+              <div class="col-sm-7">
+                <select class="form-control"
+                        name="sourceNPI" id="smppCof_sourceNPI" [(ngModel)]="smppCof.sourceNPI"
+                        ng-options="item as item for item in listSNpi">
+                </select>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Destination address: Type of number</label>
+              <div class="col-sm-7">
+                <select class="form-control"
+                        name="destTON" id="smppCof_destTON" [(ngModel)]="smppCof.destTON"
+                        ng-options="item as item for item in listTON">
+                </select>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Destination address: Numbering plan indicator</label>
+              <div class="col-sm-7">
+                <select class="form-control"
+                        name="destNPI" id="smppCof_destNPI" [(ngModel)]="smppCof.destNPI"
+                        ng-options="item as item for item in listSNpi">
+                </select>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Source address</label>
+              <div class="col-sm-7">
+                <input class="form-control" name="sourceAddress" id="smppCof_sourceAddress" [(ngModel)]="smppCof.sourceAddress">
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Destination address</label>
+              <div class="col-sm-7">
+                <input class="form-control" name="destAddress" id="smppCof_destAddress" [(ngModel)]="smppCof.destAddress">
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Validity period / schedule delivery time</label>
+              <div class="col-sm-7">
+                <select class="form-control"
+                        name="validityType" id="smppCof_validityType" [(ngModel)]="smppCof.validityType"
+                        ng-options="item as item for item in listValidityType">
+                </select>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Sending message type</label>
+              <div class="col-sm-7">
+                <select class="form-control"
+                        name="sendingMessageType" id="smppCof_sendingMessageType" [(ngModel)]="smppCof.sendingMessageType"
+                        ng-options="item as item for item in listSendingMessageType">
+                </select>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Message count for SubmitMulti message </label>
+              <div class="col-sm-7">
+                <input class="form-control required integer"
+                       min-value="0"
+                       max-value="255"
+                       name="submitMultiMessageCnt" id="smppCof_submitMultiMessageCnt" [(ngModel)]="smppCof.submitMultiMessageCnt">
+              </div>
+              <p class="col-sm-12 help-block">(addresses are for 0, 1, 2,... more then a "Dest.address")</p>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">MCDeliveryReceipt request (in registered_delivery)</label>
+              <div class="col-sm-7">
+                <select class="form-control"
+                        name="mcDeliveryReceipt" id="smppCof_mcDeliveryReceipt" [(ngModel)]="smppCof.mcDeliveryReceipt"
+                        ng-options="item as item for item in listMCDeliveryReceipt">
+                </select>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Messaging mode</label>
+              <div class="col-sm-7">
+                <select class="form-control" name="messagingMode" id="smppCof_messagingMode" [(ngModel)]="smppCof.messagingMode"
+                        ng-options="item as item for item in listMessagingMode">
+                </select>
+              </div>
+            </div>
+            <!-- /.form-group-->
+
+          </div>
+          <!-- ./col-lg-12-->
+        </div>
+        <!-- /.row -->
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab>
+      <ng-template ngbTabTitle>Response</ng-template>
+      <ng-template ngbTabContent>
+        <div class="row my-3">
+          <div class="col-lg-12">
+            <div class="form-group">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox"
+                         name="rejectIncomingDeliveryMessage" id="smppCof_rejectIncomingDeliveryMessage" [(ngModel)]="smppCof.rejectIncomingDeliveryMessage"
+                         ng-true-value="true" ng-false-value="false">Rejecting of incoming SMPP delivery
+                  messages
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" name="deliveryResponseAfter2Min" id="smppCof_deliveryResponseAfter2Min" [(ngModel)]="smppCof.deliveryResponseAfter2Min"
+                         ng-true-value="true" ng-false-value="false">Delivery receipt after 2 min
+                </label>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class="form-group">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" name="idResponseTlv" id="smppCof_idResponseTlv" [(ngModel)]="smppCof.idResponseTlv"
+                         ng-true-value="true" ng-false-value="false">Tlv fields usage in delivery receipt
+                </label>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class="form-group">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" name="wrongMessageIdInDlr" id="smppCof_wrongMessageIdInDlr" [(ngModel)]="smppCof.wrongMessageIdInDlr"
+                         ng-true-value="true" ng-false-value="false">Wrong messageId in delivery receipt
+                </label>
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <!-- /.form-group-->
+            <div class="form-group">
+              <label>Generating of delivery receipts</label>
+              <div class="radio">
+                <label>
+                  <input type="radio" name="deliveryResponseGenerating" id="smppCof_deliveryResponseGenerating" [(ngModel)]="smppCof.deliveryResponseGenerating" value="No">Disabled
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input type="radio" name="deliveryResponseGenerating" id="smppCof_deliveryResponseGenerating" [(ngModel)]="smppCof.deliveryResponseGenerating" value="Success">Success
+                  receipt
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input type="radio" name="deliveryResponseGenerating" id="smppCof_deliveryResponseGenerating" [(ngModel)]="smppCof.deliveryResponseGenerating" value="Error8">Receipt with
+                  error 8
+                </label>
+              </div>
+            </div>
+            <!-- /.form-group-->
+
+          </div>
+          <!-- ./col-lg-12-->
+        </div>
+        <!-- /.row -->
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab>
+      <ng-template ngbTabTitle>Bulk</ng-template>
+      <ng-template ngbTabContent>
+        <div class="row my-3">
+          <div class="col-lg-12 form-horizontal">
+            <div class=" form-group">
+              <label class="col-sm-12 control-label">Bulk message sending options</label>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Destination address range start</label>
+              <div class="col-sm-7">
+                <input class="form-control required integer"
+                       name="bulkDestAddressRangeStart" id="smppCof_bulkDestAddressRangeStart" [(ngModel)]="smppCof.bulkDestAddressRangeStart">
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Destination address range end</label>
+              <div class="col-sm-7">
+                <input class="form-control required integer"
+                       name="bulkDestAddressRangeEnd" id="smppCof_bulkDestAddressRangeEnd" [(ngModel)]="smppCof.bulkDestAddressRangeEnd">
+              </div>
+            </div>
+            <!-- /.form-group-->
+            <div class=" form-group">
+              <label class="col-sm-5 control-label">Bulk messages per second</label>
+              <div class="col-sm-7">
+                <input class="form-control required integer"
+                       name="bulkMessagePerSecond" id="smppCof_bulkMessagePerSecond" [(ngModel)]="smppCof.bulkMessagePerSecond">
+              </div>
+            </div>
+            <!-- /.form-group-->
+          </div>
+          <!-- ./col-lg-12-->
+        </div>
+        <!-- /.row -->
+      </ng-template>
+    </ngb-tab>
+
+
+  </ngb-tabset></div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" ng-click="saveSmppConfigure()">Save changes</button>
+    <button type="button" class="btn btn-light" (click)="c()">Close</button>
+  </div>
+</ng-template>

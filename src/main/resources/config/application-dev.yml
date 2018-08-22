@@ -33,7 +33,7 @@ spring:
     data:
         mongodb:
             uri: mongodb://localhost:27017
-            database: SmppSimulator
+            database: smppSimulator
     mail:
         host: localhost
         port: 25
@@ -62,7 +62,7 @@ spring:
 #        key-alias: smppsimulator
 # ===================================================================
 server:
-    port: 8080
+    port: 8081
 
 # ===================================================================
 # JHipster specific properties

@@ -1,7 +1,7 @@
 {
     "home": {
-        "title": "Welcome, Java Hipster!",
-        "subtitle": "This is your homepage",
+        "title": "ISTT SMPP Simulator",
+        "subtitle": "Testing Tool for SMPP",
         "logged": {
             "message": "You are logged in as user \"{{username}}\"."
         },
