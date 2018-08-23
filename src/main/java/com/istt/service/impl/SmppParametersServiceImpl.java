@@ -35,8 +35,9 @@ public class SmppParametersServiceImpl implements SmppParametersService {
 	}
 
 	@Override
-	public void saveConfSmmppParameters(SmppSimulatorParameters smppParameters) {
+	public SmppSimulatorParameters saveConfSmmppParameters(SmppSimulatorParameters smppParameters) {
 		data = smppParameters;
+		return data;
 	}
 
 }

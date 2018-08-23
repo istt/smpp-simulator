@@ -4,10 +4,11 @@
 package com.istt.web.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.istt.service.SmppParametersService;
@@ -24,17 +25,13 @@ public class SmppParametersController {
 	@Autowired
 	private SmppParametersService smppParametersService;
 
-	@RequestMapping(value = "/get-config", method = { RequestMethod.GET }, produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public SmppSimulatorParameters getConfig() {
-
-		return smppParametersService.getCofGeneralParameters();
+	@GetMapping(value = "/get-config")
+	public ResponseEntity<SmppSimulatorParameters> getConfig() {
+		return ResponseEntity.ok().body(smppParametersService.getCofGeneralParameters());
 	}
 
-	@RequestMapping(value = "/save-config", method = {
-			RequestMethod.POST }, produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public void createOrUpdateSmppSession(@RequestBody SmppSimulatorParameters smppParameters) {
-		smppParametersService.saveConfSmmppParameters(smppParameters);
+	@PostMapping(value = "/save-config")
+	public ResponseEntity<SmppSimulatorParameters> createOrUpdateSmppSession(@RequestBody SmppSimulatorParameters smppParameters) {
+		return ResponseEntity.accepted().body(smppParametersService.saveConfSmmppParameters(smppParameters));
 	}
 }

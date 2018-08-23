@@ -7,7 +7,7 @@
         <th>UserData</th>
       </tr></thead>
       <tbody>
-        <tr *ngFor="let item of listMessage" (click)="showDialogSmmMessage(item)">
+        <tr *ngFor="let item of smppMessages" (click)="showDialogSmmMessage(item)">
           <td>{{item.timeStamp}}</td>
           <td>{{item.msg}}</td>
           <td>{{item.info}}</td>
@@ -15,18 +15,20 @@
       </tbody>
     </table>
   </div>
-  <div class="card-footer">
-    {{messageState}}
+  <div class="card-footer" *ngIf="messageState.info">
+    {{messageState.info }}
   </div>
 </div>
+
+{{ smppCof | json }}
 
     <div class="row my-3">
       <div class="col-lg-12">
         <button type="button" class="btn btn-info" (click)="showDialogSmppConfigure()">Configure</button>
-        <button type="button" class="btn btn-primary" (click)="clickBtStartASession()" [disabled]="isStartSession">
+        <button type="button" class="btn btn-primary" (click)="startSmppSession()" [disabled]="isStartSession">
           Start a session
         </button>
-        <button type="button" class="btn btn-primary" (click)="clickBtStopSession()" [disabled]="!isStartSession">
+        <button type="button" class="btn btn-primary" (click)="stopSmppSession()" [disabled]="!isStartSession">
           Stop a session
         </button>
 
@@ -36,7 +38,7 @@
     <!-- /.row -->
     <div class="row my-3">
       <div class="col-lg-12">
-        <button type="button" class="btn btn-primary" (click)="clickBtRefreshState()">Refresh state</button>
+        <button type="button" class="btn btn-primary" (click)="refreshState()">Refresh state</button>
 
       </div>
 
@@ -44,9 +46,9 @@
     <!-- /.row -->
     <div class="row my-3">
       <div class="col-lg-12">
-        <button type="button" class="btn btn-primary" (click)="clickBtSendBadPacket()">Send Bad packet</button>
+        <button type="button" class="btn btn-primary" (click)="sendBadPacket()">Send Bad packet</button>
 
-        <button type="button" class="btn btn-primary" (click)="clickBtSubmitMessage()">Submit a message</button>
+        <button type="button" class="btn btn-primary" (click)="submitMessage()">Submit a message</button>
       </div>
     </div>
     <!-- /.row -->
@@ -75,16 +77,12 @@
       <div class="col-lg-4">
         <div class="form-group input-group">
           <span class="input-group-addon">TCP Port for pcap parsing</span>
-          <input type="text" [(ngModel)]="portForPcapParsing" ng-disabled="isRandomBulkMessages"
-                 class="form-control  required integer">
+          <input type="text" [(ngModel)]="portForPcapParsing" [disabled]="isRandomBulkMessages" name="portForPcapParsing"
+                 class="form-control">
         </div>
       </div>
       <div class="col-lg-4">
-        <button type="button" class="btn btn-primary" id="buttonChosePacpFile"
-                ng-disabled="isRandomBulkMessages"
-                ngf-select [(ngModel)]="file" ngf-multiple="false"
-                ngf-max-size="10MB">
-          <i class="fa fa-file" aria-hidden="true"></i> Chose pcap file
+        <fa-icon icon="upload"></fa-icon> Chose pcap file
         </button>
       </div>
     </div>
@@ -92,11 +90,11 @@
     <div class="row">
       <div class="col-lg-12">
         <button type="button" class="btn btn-primary"
-                (click)="clickBtStartBulkSending()">
+                (click)="startBulkSending()">
           Start bulk sending
         </button>
         <button type="button" class="btn btn-primary"
-                (click)="clickBtStopBulkSending()">
+                (click)="stopBulkSending()">
           Stop bulk sending
         </button>
       </div>
@@ -540,7 +538,7 @@
 
   </ngb-tabset></div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" ng-click="saveSmppConfigure()">Save changes</button>
+    <button type="button" class="btn btn-primary" ng-click="saveConfigSmpp()">Save changes</button>
     <button type="button" class="btn btn-light" (click)="c()">Close</button>
   </div>
 </ng-template>

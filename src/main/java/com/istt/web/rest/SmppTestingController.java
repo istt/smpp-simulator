@@ -4,9 +4,10 @@
 package com.istt.web.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,50 +27,49 @@ public class SmppTestingController {
 	@Autowired
 	private SmppTestingService smppTestingService;
 
-	@RequestMapping(value = "start-session", method = { RequestMethod.GET }, produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public ResReturnDTO startASession() {
-		return smppTestingService.startASession();
+	@GetMapping("start-session")
+	public ResponseEntity<ResReturnDTO> startASession() {
+		return ResponseEntity.accepted().body(smppTestingService.startASession());
 	}
 	
-	@RequestMapping(value = "stop-session", method = { RequestMethod.GET }, produces = "application/json;charset=UTF-8")
+	@GetMapping(value = "stop-session")
 	@ResponseBody
 	public ResReturnDTO stopASession() {
 		return smppTestingService.stopASession();
 	}
 
-	@RequestMapping(value = "refresh-state", method = { RequestMethod.GET }, produces = "application/json;charset=UTF-8")
+	@GetMapping(value = "refresh-state")
 	@ResponseBody
 	public ResReturnDTO refreshState() {
 		return smppTestingService.refreshState();
 	}
 
-	@RequestMapping(value = "send-bad-packet", method = { RequestMethod.GET }, produces = "application/json;charset=UTF-8")
+	@GetMapping(value = "send-bad-packet")
 	@ResponseBody
 	public ResReturnDTO sendBadPacket() {
 		return smppTestingService.sendBadPacket();
 	}
 
-	@RequestMapping(value = "submit-message", method = { RequestMethod.GET }, produces = "application/json;charset=UTF-8")
+	@GetMapping(value = "submit-message")
 	@ResponseBody
 	public ResReturnDTO submitMessage() {
 		return smppTestingService.submitMessage();
 	}
 
-	@RequestMapping(value = "bulk-sending-random", method = { RequestMethod.GET }, produces = "application/json;charset=UTF-8")
+	@GetMapping(value = "bulk-sending-random")
 	@ResponseBody
 	public ResReturnDTO bulkSendingRandom() {
 		return smppTestingService.bulkSendingRandom();
 	}
 
-	@RequestMapping(value = "bulk-sending-from-pcap-file", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@PostMapping(value = "bulk-sending-from-pcap-file")
 	@ResponseBody
 	public ResReturnDTO bulkSendingFromPcapFile(@RequestParam("port") Integer port,
 			@RequestParam("file") MultipartFile file) {
 		return smppTestingService.bulkSendingFromPcapFile(file, port);
 	}
 	
-	@RequestMapping(value = "stop-bulk-sending", method = { RequestMethod.GET }, produces = "application/json;charset=UTF-8")
+	@GetMapping(value = "stop-bulk-sending")
 	@ResponseBody
 	public ResReturnDTO stopBulkSending() {
 		return smppTestingService.stopBulkSending();

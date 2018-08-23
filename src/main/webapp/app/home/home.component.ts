@@ -18,6 +18,10 @@ export class HomeComponent implements OnInit {
     ngOnInit() {
         this.principal.identity().then(account => {
             this.account = account;
+            this.eventManager.broadcast({
+                name: 'authenticationSuccess',
+                content: 'Sending Authentication Success'
+            });
         });
         this.registerAuthenticationSuccess();
     }

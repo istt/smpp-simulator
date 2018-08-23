@@ -13,5 +13,5 @@ public interface SmppParametersService {
 
 	SmppSimulatorParameters getCofGeneralParameters();
 	
-	void saveConfSmmppParameters(SmppSimulatorParameters smppParameters);
+	SmppSimulatorParameters saveConfSmmppParameters(SmppSimulatorParameters smppParameters);
 }

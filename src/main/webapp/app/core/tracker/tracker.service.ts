@@ -46,22 +46,19 @@ export class JhiTrackerService {
         const socket = new SockJS(url);
         this.stompClient = Stomp.over(socket);
         const headers = {};
-        this.stompClient.connect(
-            headers,
-            () => {
-                this.connectedPromise('success');
-                this.connectedPromise = null;
-                this.sendActivity();
-                if (!this.alreadyConnectedOnce) {
-                    this.subscription = this.router.events.subscribe(event => {
-                        if (event instanceof NavigationEnd) {
-                            this.sendActivity();
-                        }
-                    });
-                    this.alreadyConnectedOnce = true;
-                }
+        this.stompClient.connect(headers, () => {
+            this.connectedPromise('success');
+            this.connectedPromise = null;
+            this.sendActivity();
+            if (!this.alreadyConnectedOnce) {
+                this.subscription = this.router.events.subscribe(event => {
+                    if (event instanceof NavigationEnd) {
+                        this.sendActivity();
+                    }
+                });
+                this.alreadyConnectedOnce = true;
             }
-        );
+        });
     }
 
     disconnect() {
@@ -80,19 +77,19 @@ export class JhiTrackerService {
         return this.listener;
     }
 
-    sendActivity() {
+    sendActivity(destination?: string) {
         if (this.stompClient !== null && this.stompClient.connected) {
             this.stompClient.send(
-                '/topic/activity', // destination
+                destination ? destination : '/topic/activity', // destination
                 JSON.stringify({ page: this.router.routerState.snapshot.url }), // body
                 {} // header
             );
         }
     }
 
-    subscribe() {
+    subscribe(destination?: string) {
         this.connection.then(() => {
-            this.subscriber = this.stompClient.subscribe('/topic/tracker', data => {
+            this.subscriber = this.stompClient.subscribe(destination ? destination : '/topic/tracker', data => {
                 this.listenerObserver.next(JSON.parse(data.body));
             });
         });
