@@ -123,17 +123,18 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 		addMessage(CodeStatusUtil.ADD_MESSAGE, msg, info);
 	}
 
-	public void addMessage(Integer codeStatus, String msg, String info) {
+	public ResReturnDTO addMessage(Integer codeStatus, String msg, String info) {
 		try {
 			SmppMessage sms = setSmppMessage(msg, info);
 			ResReturnDTO returnDTO = new ResReturnDTO();
 			returnDTO.setCodeStatus(codeStatus);
 			returnDTO.setData(sms);
 			messagingTemplate.convertAndSend("/topic/smpp-logger", returnDTO);
+			return returnDTO;
 		} catch (Exception e) {
 			logger.error("addMessage", e);
 		}
-
+		return null;
 	}
 
 	private SmppMessage setSmppMessage(String msg, String info) throws ParseException {
@@ -152,7 +153,7 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 				+ this.messagesRcvd.get();
 	}
 
-	@Scheduled(initialDelay = 10000, fixedRate = 5000)
+	@Scheduled(initialDelay = 10000, fixedRate = 15000)
 	public void scheduledAddMessage() {
 		try {
 //			addMessage(CodeStatusUtil.ADD_MESSAGE, "Message Segment", getMessState());
@@ -179,12 +180,12 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 	}
 
 	@Override
-	public ResReturnDTO sendBadPacket() {
+	public ResReturnDTO sendBadPacket() throws Exception {
 		doSendBadPacket();
 		return null;
 	}
 
-	private void doSendBadPacket() {
+	private void doSendBadPacket() throws Exception {
 		// TODO: ..............................
 		SubmitSm submitSm = new SubmitSm();
 		try {
@@ -193,16 +194,17 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 		} catch (Exception e) {
 			this.addMessage(CodeStatusUtil.ADD_MESSAGE, "Have Exception. Can't send bad packet", e.getMessage());
 			logger.error("submitSm", e);
+			throw e;
 		}
 	}
 
 	@Override
-	public ResReturnDTO startASession() {
+	public ResReturnDTO startASession() throws Exception {
 		start();
 		return null;
 	}
 
-	public void start() {
+	public void start() throws Exception {
 		this.messagesSent = new AtomicInteger();
 		this.segmentsSent = new AtomicInteger();
 		this.responsesRcvd = new AtomicInteger();
@@ -250,7 +252,7 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 				session0 = clientBootstrap.bind(config0, sessionHandler);
 			} catch (Exception e) {
 				this.addMessage(CodeStatusUtil.SESSION_START_FALSE, "Failure to start a new session", e.toString());
-				return;
+				throw e;
 			}
 
 			// enableStart(false);
@@ -286,7 +288,7 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 			} catch (SmppChannelException e1) {
 				this.addMessage(CodeStatusUtil.SESSION_START_FALSE, "Failure to start a defaultSmppServer",
 						e1.toString());
-				return;
+				throw e1;
 			}
 
 			// enableStart(false);
@@ -322,7 +324,7 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 					executor.shutdownNow();
 					monitorExecutor.shutdownNow();
 				} catch (Exception e) {
-
+					throw e;
 				}
 
 				clientBootstrap = null;
@@ -337,12 +339,13 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 		} catch (Exception e) {
 			this.addMessage(CodeStatusUtil.ADD_MESSAGE, "Have Exception. Can't doStop", e.getMessage());
 			logger.error("doStop", e);
+			throw e;
 		}
 
 	}
 
 	@Override
-	public ResReturnDTO submitMessage() {
+	public ResReturnDTO submitMessage() throws Exception {
 		doSubmitMessage(smppParametersService.getCofGeneralParameters().getEncodingType(),
 				smppParametersService.getCofGeneralParameters().getMessageClass(),
 				smppParametersService.getCofGeneralParameters().getMessageText(),
@@ -356,7 +359,7 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 
 	private void doSubmitMessage(EncodingType encodingType, int messageClass, String messageText,
 			SplittingType splittingType, ValidityType validityType, String destAddr,
-			SmppSimulatorParameters.MessagingMode messagingMode, int specifiedSegmentLength) {
+			SmppSimulatorParameters.MessagingMode messagingMode, int specifiedSegmentLength) throws Exception {
 		if (session0 == null)
 			return;
 
@@ -500,7 +503,7 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 		} catch (Exception e) {
 			this.addMessage(CodeStatusUtil.MESSAGE_SUBMIT_FALSE, "Failure to submit message", e.toString());
 			logger.error("SmppTestingServiceImpl", e);
-			return;
+			throw e;
 		}
 	}
 
@@ -727,7 +730,12 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 			this.timer[i1].scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
-					doSendRandomSmppMessages();
+					try {
+						doSendRandomSmppMessages();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}, 1 * 1000, 1 * 1000);
 		}
@@ -738,7 +746,7 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 	private String bigMessage = "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
 	private AtomicInteger messagesNum = new AtomicInteger();
 
-	private void doSendRandomSmppMessages() {
+	private void doSendRandomSmppMessages() throws Exception {
 
 		Random rand = new Random();
 
@@ -822,11 +830,5 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 
 	public AtomicLong getMsgIdGenerator() {
 		return msgIdGenerator;
-	}
-
-	private class MyHandler extends StompSessionHandlerAdapter {
-		public void afterConnected(StompSession stompSession, StompHeaders stompHeaders) {
-			logger.info("Now connected");
-		}
 	}
 }

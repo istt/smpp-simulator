@@ -1,56 +1,52 @@
-<div class="card">
-  <div class="card-body table-responsive">
-    <table class="table">
-      <thead><tr>
-        <th>TimeStamp</th>
-        <th>Message</th>
-        <th>UserData</th>
-      </tr></thead>
-      <tbody>
-        <tr *ngFor="let item of smppMessages" (click)="showDialogSmmMessage(item)">
-          <td>{{item.timeStamp}}</td>
-          <td>{{item.msg}}</td>
-          <td>{{item.info}}</td>
-        </tr>
-      </tbody>
-    </table>
+<jhi-alert></jhi-alert>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-body table-responsive">
+        <table class="table table-bordered table-sm table-striped">
+          <thead><tr>
+            <th>TimeStamp</th>
+            <th>Message</th>
+            <th>UserData</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let item of smppMessages" (click)="showDialogSmmMessage(item)">
+              <td>{{item.timeStamp}}</td>
+              <td>{{item.msg}}</td>
+              <td>{{item.info}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer" *ngIf="messageState">
+        {{ messageState }}
+      </div>
+    </div>
   </div>
-  <div class="card-footer" *ngIf="messageState.info">
-    {{messageState.info }}
-  </div>
-</div>
+  <div class="col-md-4">
 
-{{ smppCof | json }}
+    <button type="button" class="btn btn-info btn-block" (click)="showDialogSmppConfigure()"><fa-icon icon="tachometer-alt"></fa-icon> Configure</button>
 
-    <div class="row my-3">
-      <div class="col-lg-12">
-        <button type="button" class="btn btn-info" (click)="showDialogSmppConfigure()">Configure</button>
-        <button type="button" class="btn btn-primary" (click)="startSmppSession()" [disabled]="isStartSession">
-          Start a session
-        </button>
-        <button type="button" class="btn btn-primary" (click)="stopSmppSession()" [disabled]="!isStartSession">
-          Stop a session
-        </button>
+    <hr class="clearfix">
 
-        <button type="button" class="btn btn-primary hidden">Open event window</button>
-      </div>
-    </div>
+      <button type="button" class="btn btn-primary" (click)="startSmppSession()" [disabled]="isStartSession">
+        Start a session
+      </button>
+      <button type="button" class="btn btn-primary" (click)="stopSmppSession()" [disabled]="!isStartSession">
+        Stop a session
+      </button>
+
+    <hr class="clearfix">
+
     <!-- /.row -->
-    <div class="row my-3">
-      <div class="col-lg-12">
-        <button type="button" class="btn btn-primary" (click)="refreshState()">Refresh state</button>
+    <button type="button" class="btn btn-default" (click)="refreshState()"><fa-icon icon="sync"></fa-icon> Refresh state</button>
 
-      </div>
-
-    </div>
+    <hr class="clearfix">
     <!-- /.row -->
-    <div class="row my-3">
-      <div class="col-lg-12">
-        <button type="button" class="btn btn-primary" (click)="sendBadPacket()">Send Bad packet</button>
+    <button type="button" class="btn btn-success" (click)="submitMessage()">Submit a message</button>
+    <button type="button" class="btn btn-warning" (click)="sendBadPacket()">Send Bad packet</button>
 
-        <button type="button" class="btn btn-primary" (click)="submitMessage()">Submit a message</button>
-      </div>
-    </div>
     <!-- /.row -->
     <div class="row my-3">
       <div class="col-lg-12">
@@ -102,6 +98,7 @@
     <!-- /.row -->
   </div>
 </div>
+
 
 <ng-template #dialogSmppMessage let-c="close" let-d="dismiss">
   <div class="modal-header">
@@ -314,9 +311,8 @@
             <div class=" form-group">
               <label class="col-sm-5 control-label">Source address: Type of number</label>
               <div class="col-sm-7">
-                <select class="form-control"
-                        ng-options="item as item for item in listTON"
-                        name="sourceTON" id="smppCof_sourceTON" [(ngModel)]="smppCof.sourceTON">
+                <select class="form-control" name="sourceTON" id="smppCof_sourceTON" [(ngModel)]="smppCof.sourceTON">
+                        <option *ngFor=" let item of listTON" [value]="item">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -324,9 +320,8 @@
             <div class=" form-group">
               <label class="col-sm-5 control-label">Source address: Numbering plan indicator</label>
               <div class="col-sm-7">
-                <select class="form-control"
-                        name="sourceNPI" id="smppCof_sourceNPI" [(ngModel)]="smppCof.sourceNPI"
-                        ng-options="item as item for item in listSNpi">
+                <select class="form-control" name="sourceNPI" id="smppCof_sourceNPI" [(ngModel)]="smppCof.sourceNPI" >
+                        <option *ngFor=" let item of listSNpi" [value]="item">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -334,9 +329,8 @@
             <div class=" form-group">
               <label class="col-sm-5 control-label">Destination address: Type of number</label>
               <div class="col-sm-7">
-                <select class="form-control"
-                        name="destTON" id="smppCof_destTON" [(ngModel)]="smppCof.destTON"
-                        ng-options="item as item for item in listTON">
+                <select class="form-control" name="destTON" id="smppCof_destTON" [(ngModel)]="smppCof.destTON" >
+                        <option *ngFor=" let item of listTON" [value]="item">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -344,9 +338,8 @@
             <div class=" form-group">
               <label class="col-sm-5 control-label">Destination address: Numbering plan indicator</label>
               <div class="col-sm-7">
-                <select class="form-control"
-                        name="destNPI" id="smppCof_destNPI" [(ngModel)]="smppCof.destNPI"
-                        ng-options="item as item for item in listSNpi">
+                <select class="form-control" name="destNPI" id="smppCof_destNPI" [(ngModel)]="smppCof.destNPI" >
+                        <option *ngFor=" let item of listSNpi" [value]="item">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -370,7 +363,8 @@
               <div class="col-sm-7">
                 <select class="form-control"
                         name="validityType" id="smppCof_validityType" [(ngModel)]="smppCof.validityType"
-                        ng-options="item as item for item in listValidityType">
+                        >
+                        <option *ngFor=" let item of listValidityType" [value]="item">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -380,7 +374,8 @@
               <div class="col-sm-7">
                 <select class="form-control"
                         name="sendingMessageType" id="smppCof_sendingMessageType" [(ngModel)]="smppCof.sendingMessageType"
-                        ng-options="item as item for item in listSendingMessageType">
+                        >
+                        <option *ngFor=" let item of listSendingMessageType" [value]="item">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -401,7 +396,8 @@
               <div class="col-sm-7">
                 <select class="form-control"
                         name="mcDeliveryReceipt" id="smppCof_mcDeliveryReceipt" [(ngModel)]="smppCof.mcDeliveryReceipt"
-                        ng-options="item as item for item in listMCDeliveryReceipt">
+                        >
+                        <option *ngFor=" let item of listMCDeliveryReceipt" [value]="item">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -410,7 +406,8 @@
               <label class="col-sm-5 control-label">Messaging mode</label>
               <div class="col-sm-7">
                 <select class="form-control" name="messagingMode" id="smppCof_messagingMode" [(ngModel)]="smppCof.messagingMode"
-                        ng-options="item as item for item in listMessagingMode">
+                        >
+                        <option *ngFor=" let item of listMessagingMode" [value]="item">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -538,7 +535,10 @@
 
   </ngb-tabset></div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" ng-click="saveConfigSmpp()">Save changes</button>
-    <button type="button" class="btn btn-light" (click)="c()">Close</button>
+    <button type="button" class="btn btn-primary" (click)="saveConfigSmpp()">Save changes</button>
+    <button type="button" class="btn btn-secondary" (click)="c()">Close</button>
   </div>
 </ng-template>
+
+
+<pre><code>{{ smppCof | json }}</code></pre>
