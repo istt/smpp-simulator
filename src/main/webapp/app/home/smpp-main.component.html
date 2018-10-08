@@ -493,6 +493,28 @@
     </ngb-tab>
 
     <ngb-tab>
+      <ng-template ngbTabTitle>Optional TLV</ng-template>
+      <ng-template ngbTabContent>
+        <table class="table">
+          <thead><tr>
+            <th>Tag Name</th>
+            <th>Value</th>
+            <th><button type="button" class="btn btn-primary btn-sm" (click)="addTlv()">Add Tlv</button></th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let tlv of smppCof.tlvList">
+              <td><select class="form-control" name="smppSessionType" id="smppCof_smppSessionType" [(ngModel)]="tlv.tag">
+                  <option *ngFor="let t of listTlv" value="{{t.tag | lowercase }}">{{ t.tagName }}</option>
+                </select> </td>
+                <td><input class="form-control" [(ngModel)]="tlv.value"></td>
+                <th><button type="button" class="btn btn-primary btn-sm" (click)="removeTlv(tlv)">Remove</button></th>
+            </tr>
+          </tbody>
+        </table>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab>
       <ng-template ngbTabTitle>Bulk</ng-template>
       <ng-template ngbTabContent>
         <div class="row my-3">

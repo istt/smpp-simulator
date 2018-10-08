@@ -22,8 +22,11 @@
 
 package com.istt.service.dto;
 
+import java.util.List;
+
 import com.cloudhopper.smpp.SmppBindType;
 import com.cloudhopper.smpp.SmppSession;
+import com.cloudhopper.smpp.tlv.Tlv;
 
 /**
  *
@@ -77,6 +80,11 @@ public class SmppSimulatorParameters {
 	private long bulkDestAddressRangeStart = 500000;
 	private long bulkDestAddressRangeEnd = 600000;
 	private int bulkMessagePerSecond = 10;
+	private List<TlvDTO> tlvList;
+
+	public void setTlvList(List<TlvDTO> tlvList) {
+		this.tlvList = tlvList;
+	}
 
 	public int getWindowSize() {
 		return windowSize;
@@ -458,5 +466,34 @@ public class SmppSimulatorParameters {
     public enum DeliveryResponseGenerating {
         No, Success, Error8;
     }
+
+	public List<TlvDTO> getTlvList() {
+		// TODO Auto-generated method stub
+		return tlvList;
+	}
+
+	@Override
+	public String toString() {
+		return "SmppSimulatorParameters [windowSize=" + windowSize + ", bindType=" + bindType + ", host=" + host
+				+ ", port=" + port + ", connectTimeout=" + connectTimeout + ", systemId=" + systemId + ", password="
+				+ password + ", requestExpiryTimeout=" + requestExpiryTimeout + ", windowMonitorInterval="
+				+ windowMonitorInterval + ", rejectIncomingDeliveryMessage=" + rejectIncomingDeliveryMessage
+				+ ", deliveryResponseGenerating=" + deliveryResponseGenerating + ", deliveryResponseAfter2Min="
+				+ deliveryResponseAfter2Min + ", idResponseTlv=" + idResponseTlv + ", wrongMessageIdInDlr="
+				+ wrongMessageIdInDlr + ", sourceTon=" + sourceTon + ", sourceNpi=" + sourceNpi + ", destTon=" + destTon
+				+ ", destNpi=" + destNpi + ", sourceAddress=" + sourceAddress + ", destAddress=" + destAddress
+				+ ", addressRange=" + addressRange + ", messageText=" + messageText + ", encodingType=" + encodingType
+				+ ", messageClass=" + messageClass + ", splittingType=" + splittingType + ", specifiedSegmentLength="
+				+ specifiedSegmentLength + ", validityType=" + validityType + ", mcDeliveryReceipt=" + mcDeliveryReceipt
+				+ ", sendingMessageType=" + sendingMessageType + ", submitMultiMessageCnt=" + submitMultiMessageCnt
+				+ ", smppSessionType=" + smppSessionType + ", smppEncoding=" + smppEncoding + ", messagingMode="
+				+ messagingMode + ", bulkDestAddressRangeStart=" + bulkDestAddressRangeStart
+				+ ", bulkDestAddressRangeEnd=" + bulkDestAddressRangeEnd + ", bulkMessagePerSecond="
+				+ bulkMessagePerSecond + ", tlvList=" + tlvList + "]";
+	}
+	
+	
+	
+	
 }
 

@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -64,6 +65,7 @@ import com.istt.service.dto.SmppSimulatorParameters.EncodingType;
 import com.istt.service.dto.SmppSimulatorParameters.SendingMessageType;
 import com.istt.service.dto.SmppSimulatorParameters.SplittingType;
 import com.istt.service.dto.SmppSimulatorParameters.ValidityType;
+import com.istt.service.dto.TlvDTO;
 import com.istt.service.util.CodeStatusUtil;
 import com.istt.service.util.StringUtils;
 import com.istt.smpp.SmppPcapParser;
@@ -353,13 +355,14 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 				smppParametersService.getCofGeneralParameters().getValidityType(),
 				smppParametersService.getCofGeneralParameters().getDestAddress(),
 				smppParametersService.getCofGeneralParameters().getMessagingMode(),
-				smppParametersService.getCofGeneralParameters().getSpecifiedSegmentLength());
+				smppParametersService.getCofGeneralParameters().getSpecifiedSegmentLength(),
+				smppParametersService.getCofGeneralParameters().getTlvList());
 		return null;
 	}
 
 	private void doSubmitMessage(EncodingType encodingType, int messageClass, String messageText,
 			SplittingType splittingType, ValidityType validityType, String destAddr,
-			SmppSimulatorParameters.MessagingMode messagingMode, int specifiedSegmentLength) throws Exception {
+			SmppSimulatorParameters.MessagingMode messagingMode, int specifiedSegmentLength, List<TlvDTO> tlvList) throws Exception {
 		if (session0 == null)
 			return;
 
@@ -499,7 +502,7 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 			esmClass |= messagingMode.getCode();
 
 			this.doSubmitMessage(dcs, msgLst, msgRef, addSegmTlv, esmClass, validityType, segmCnt, destAddr,
-					messageClassVal);
+					messageClassVal, tlvList);
 		} catch (Exception e) {
 			this.addMessage(CodeStatusUtil.MESSAGE_SUBMIT_FALSE, "Failure to submit message", e.toString());
 			logger.error("SmppTestingServiceImpl", e);
@@ -546,7 +549,7 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 
 	@SuppressWarnings({ "rawtypes", "incomplete-switch" })
 	private void doSubmitMessage(int dcs, ArrayList<byte[]> msgLst, int msgRef, boolean addSegmTlv, int esmClass,
-			SmppSimulatorParameters.ValidityType validityType, int segmentCnt, String destAddr, int messageClassVal)
+			SmppSimulatorParameters.ValidityType validityType, int segmentCnt, String destAddr, int messageClassVal, List<TlvDTO> tlvList)
 			throws Exception {
 		int i1 = 0;
 		for (byte[] buf : msgLst) {
@@ -663,6 +666,10 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 				Tlv tlv = new Tlv(SmppConstants.TAG_DEST_ADDR_SUBUNIT, buf1);
 				pdu.addOptionalParameter(tlv);
 			}
+			
+			for (TlvDTO optionalTlv : tlvList) {
+				pdu.addOptionalParameter(new Tlv(Short.parseShort(optionalTlv.getTag()), optionalTlv.getValue().getBytes()));
+			}
 
 			@SuppressWarnings("unused")
 			WindowFuture<Integer, PduRequest, PduResponse> future0 = session0.sendRequestPdu(pdu, 10000, false);
@@ -765,7 +772,9 @@ public class SmppTestingServiceImpl implements SmppTestingService {
 			this.doSubmitMessage(encodingType, 0, msg, splittingType,
 					smppParametersService.getCofGeneralParameters().getValidityType(), destAddrS,
 					smppParametersService.getCofGeneralParameters().getMessagingMode(),
-					smppParametersService.getCofGeneralParameters().getSpecifiedSegmentLength());
+					smppParametersService.getCofGeneralParameters().getSpecifiedSegmentLength(),
+					smppParametersService.getCofGeneralParameters().getTlvList()
+					);
 		}
 	}
 
