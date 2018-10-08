@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { createRequestOption } from 'app/shared';
 import { SERVER_API_URL } from 'app/app.constants';
 import { LoginModalService, Principal, Account, JhiTrackerService } from 'app/core';
+import { SmppConfigService } from './smpp-config.service';
 
 @Component({
     selector: 'jhi-smpp-main',
@@ -27,6 +28,9 @@ export class SmppMainComponent implements OnInit {
 
     // Reference to #dialogSmppMessage under view
     @ViewChild('dialogSmppMessage') dialogSmppMessage: NgbModalRef;
+
+    // Configure the Message Submission Templates
+    @ViewChild('dialogSubmitCfg') dialogSubmitCfg: NgbModalRef;
 
     // Reference to #dialogSmppConfigure under view
     @ViewChild('dialogSmppConfigure') dialogSmppConfigure: NgbModalRef;
@@ -106,6 +110,7 @@ export class SmppMainComponent implements OnInit {
     ];
 
     constructor(
+        public smppConfig: SmppConfigService,
         private principal: Principal,
         private modalService: NgbModal,
         private eventManager: JhiEventManager,
@@ -133,6 +138,11 @@ export class SmppMainComponent implements OnInit {
     // Display the SMPP Configuration Dialog
     showDialogSmppConfigure() {
         this.activeModal = this.modalService.open(this.dialogSmppConfigure, { size: 'lg' });
+    }
+
+    // Display the SMPP packet configuration
+    showDialogSubmitCfg() {
+        this.activeModal = this.modalService.open(this.dialogSubmitCfg, { size: 'lg' });
     }
 
     commonGetResult = (object: any) => {
